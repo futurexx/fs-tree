@@ -6,21 +6,22 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 )
 
-// CommandLineArgs - command line args structure
-type CommandLineArgs struct {
-	targetPath string
-	maxDepth   uint
+// CLConfig - command line args structure
+type CLConfig struct {
+	TargetPath string
+	MaxDepth   uint
 }
 
-var parsedArgs CommandLineArgs
+var parsedArgs CLConfig
 
 // CheckArgs - checking command line arguments
 func CheckArgs() error {
-	fileStat, err := os.Stat(parsedArgs.targetPath)
+	fileStat, err := os.Stat(parsedArgs.TargetPath)
 	if err != nil {
-		errorString := fmt.Sprintf("Failed to match path `%s`\n", parsedArgs.targetPath)
+		errorString := fmt.Sprintf("Failed to match path `%s`\n", parsedArgs.TargetPath)
 		return errors.New(errorString)
 	}
 
@@ -40,16 +41,29 @@ func init() {
 
 	flag.Parse()
 
-	parsedArgs.targetPath = targetPath
-	parsedArgs.maxDepth = maxDepth
-}
+	parsedArgs.TargetPath = targetPath
+	parsedArgs.MaxDepth = maxDepth
 
-func main() {
 	err := CheckArgs()
-
 	if err != nil {
 		log.Fatal(err)
 	}
 
+	absPath, err := filepath.Abs(parsedArgs.TargetPath)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	parsedArgs.TargetPath = absPath
+}
+
+func main() {
 	fmt.Println(parsedArgs)
+
+	treeBuffer, err := PrintFilesTree(parsedArgs)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println(treeBuffer.String())
 }
