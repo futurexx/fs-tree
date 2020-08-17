@@ -16,6 +16,12 @@ type FileNode struct {
 	IsLast  bool
 }
 
+// TreeStat - stats about count of directories and files
+type TreeStat struct {
+	DirCount  uint
+	FileCount uint
+}
+
 func getColorizedFileName(fileNode *FileNode) string {
 	color := ColorReset
 	if fileNode.IsDir {
@@ -48,11 +54,13 @@ func getLine(fileNode *FileNode, level int) string {
 	return fmt.Sprintf("%s%s%s\n", line, prefix, getColorizedFileName(fileNode))
 }
 
-func bufferingTree(buffer *bytes.Buffer, fileNode *FileNode, level int) error {
+func bufferingTree(buffer *bytes.Buffer, stat *TreeStat, fileNode *FileNode, level int) error {
+
 	line := getLine(fileNode, level)
 	buffer.WriteString(line)
 
 	if fileNode.IsDir {
+		stat.DirCount++
 		files, err := ioutil.ReadDir(fileNode.AbsPath)
 		if err != nil {
 			return err
@@ -67,11 +75,13 @@ func bufferingTree(buffer *bytes.Buffer, fileNode *FileNode, level int) error {
 				AbsPath: path.Join(fileNode.AbsPath, file.Name()),
 				IsDir:   file.IsDir(),
 				IsLast:  isLast}
-			err := bufferingTree(buffer, &childFileNode, level+1)
+			err := bufferingTree(buffer, stat, &childFileNode, level+1)
 			if err != nil {
 				return err
 			}
 		}
+	} else {
+		stat.FileCount++
 	}
 
 	return nil
@@ -88,7 +98,13 @@ func PrintFilesTree(args CLConfig) (bytes.Buffer, error) {
 		IsDir:   true,
 		IsLast:  true}
 
-	err := bufferingTree(&buffer, &rootFile, 0)
+	stat := TreeStat{}
+
+	err := bufferingTree(&buffer, &stat, &rootFile, 0)
+
+	statLine := fmt.Sprintf("\n%d directories, %d files", stat.DirCount, stat.FileCount)
+
+	buffer.WriteString(statLine)
 
 	return buffer, err
 }
