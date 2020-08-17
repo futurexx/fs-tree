@@ -34,7 +34,7 @@ func CheckArgs() error {
 
 func init() {
 	var targetPath string
-	var maxDepth uint
+	var maxDepth uint // TODO: support max-depth params
 
 	flag.StringVar(&targetPath, "t", ".", "Entrypoint path")
 	flag.UintVar(&maxDepth, "max-depth", 0, "Max depth of recursion (positive number)")
@@ -58,8 +58,6 @@ func init() {
 }
 
 func main() {
-	fmt.Println(parsedArgs)
-
 	treeBuffer, err := PrintFilesTree(parsedArgs)
 	if err != nil {
 		log.Fatal(err)
