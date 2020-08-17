@@ -16,6 +16,14 @@ type FileNode struct {
 	IsLast  bool
 }
 
+func getColorizedFileName(fileNode *FileNode) string {
+	color := ColorReset
+	if fileNode.IsDir {
+		color = ColorBlue
+	}
+	return string(color) + fileNode.Name + string(ColorReset)
+}
+
 func getLine(fileNode *FileNode, level int) string {
 
 	line := ""
@@ -37,7 +45,7 @@ func getLine(fileNode *FileNode, level int) string {
 		prefix = ""
 	}
 
-	return fmt.Sprintf("%s%s %s\n", line, prefix, fileNode.Name)
+	return fmt.Sprintf("%s%s%s\n", line, prefix, getColorizedFileName(fileNode))
 }
 
 func bufferingTree(buffer *bytes.Buffer, fileNode *FileNode, level int) error {
