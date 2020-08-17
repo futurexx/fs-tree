@@ -102,7 +102,7 @@ func PrintFilesTree(args CLConfig) (bytes.Buffer, error) {
 
 	err := bufferingTree(&buffer, &stat, &rootFile, 0)
 
-	statLine := fmt.Sprintf("\n%d directories, %d files", stat.DirCount, stat.FileCount)
+	statLine := fmt.Sprintf("\n%d directories, %d files", stat.DirCount-1, stat.FileCount)
 
 	buffer.WriteString(statLine)
 
