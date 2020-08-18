@@ -12,7 +12,7 @@ import (
 // CLConfig - command line args structure
 type CLConfig struct {
 	TargetPath string
-	MaxDepth   uint
+	MaxDepth   int
 }
 
 var parsedArgs CLConfig
@@ -29,15 +29,19 @@ func CheckArgs() error {
 		return errors.New("Target must be a dir")
 	}
 
+	if parsedArgs.MaxDepth < 0 {
+		return errors.New("`max-depth` param must be a positive")
+	}
+
 	return nil
 }
 
 func init() {
 	var targetPath string
-	var maxDepth uint // TODO: support max-depth params
+	var maxDepth int // TODO: support max-depth params
 
 	flag.StringVar(&targetPath, "t", ".", "Entrypoint path")
-	flag.UintVar(&maxDepth, "max-depth", 0, "Max depth of recursion (positive number)")
+	flag.IntVar(&maxDepth, "max-depth", 0, "Max depth of recursion (positive number)")
 
 	flag.Parse()
 

@@ -31,7 +31,6 @@ func getColorizedFileName(fileNode *FileNode) string {
 }
 
 func getLine(fileNode *FileNode, level int) string {
-
 	line := ""
 	parent := fileNode.Parent
 	for level-1 > 0 {
@@ -54,8 +53,10 @@ func getLine(fileNode *FileNode, level int) string {
 	return fmt.Sprintf("%s%s%s\n", line, prefix, getColorizedFileName(fileNode))
 }
 
-func bufferingTree(buffer *bytes.Buffer, stat *TreeStat, fileNode *FileNode, level int) error {
-
+func bufferingTree(buffer *bytes.Buffer, stat *TreeStat, fileNode *FileNode, level int, maxDepth int) error {
+	if maxDepth != 0 && level-maxDepth == 1 {
+		return nil
+	}
 	line := getLine(fileNode, level)
 	buffer.WriteString(line)
 
@@ -75,7 +76,7 @@ func bufferingTree(buffer *bytes.Buffer, stat *TreeStat, fileNode *FileNode, lev
 				AbsPath: path.Join(fileNode.AbsPath, file.Name()),
 				IsDir:   file.IsDir(),
 				IsLast:  isLast}
-			err := bufferingTree(buffer, stat, &childFileNode, level+1)
+			err := bufferingTree(buffer, stat, &childFileNode, level+1, maxDepth)
 			if err != nil {
 				return err
 			}
@@ -100,7 +101,7 @@ func PrintFilesTree(args CLConfig) (bytes.Buffer, error) {
 
 	stat := TreeStat{}
 
-	err := bufferingTree(&buffer, &stat, &rootFile, 0)
+	err := bufferingTree(&buffer, &stat, &rootFile, 0, args.MaxDepth)
 
 	statLine := fmt.Sprintf("\n%d directories, %d files", stat.DirCount-1, stat.FileCount)
 
