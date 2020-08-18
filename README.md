@@ -1,2 +1,2 @@
 # fs-tree
-Unix `tree` writing on golang
+Unix `tree` written in golang
